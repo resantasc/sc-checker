@@ -1,0 +1,1383 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Проверка СЦ для iPhone</title>
+  <style>
+    :root {
+      --bg: #f6f7f8;
+      --surface: #ffffff;
+      --ink: #1b1f23;
+      --muted: #68717d;
+      --line: #d9dee5;
+      --accent: #0f766e;
+      --accent-strong: #0b5e58;
+      --danger: #b42318;
+      --ok: #157f3b;
+      --shadow: 0 10px 28px rgba(28, 35, 45, .08);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .app {
+      width: min(1060px, 100%);
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin: -18px -18px 18px;
+      padding: 14px 18px;
+      background: rgba(246, 247, 248, .94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .topbar {
+      width: min(1060px, 100%);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(21px, 4vw, 30px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button, .file-label {
+      min-height: 44px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 10px 14px;
+      background: #e9edf1;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      touch-action: manipulation;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    button.primary:active {
+      background: var(--accent-strong);
+    }
+
+    button.danger {
+      color: var(--danger);
+      background: #fff0ee;
+      border-color: #ffd6d1;
+    }
+
+    button.small, .file-label {
+      min-height: 38px;
+      padding: 8px 11px;
+      font-size: 14px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="date"], textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, .13);
+    }
+
+    .section-title {
+      margin: 22px 0 10px;
+      color: #26313d;
+      font-size: 19px;
+    }
+
+    .item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .item-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .item-number {
+      flex: 0 0 auto;
+      min-width: 42px;
+      height: 32px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e8f5f3;
+      color: var(--accent-strong);
+      font-weight: 800;
+    }
+
+    .item-text {
+      flex: 1;
+      margin: 4px 0 0;
+      font-weight: 700;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      margin: 0;
+    }
+
+    .photo-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    input[type="file"] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+    }
+
+    .photos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+      gap: 8px;
+    }
+
+    .photo {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #edf0f3;
+      border: 1px solid var(--line);
+    }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      min-width: 32px;
+      min-height: 32px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .93);
+      color: var(--danger);
+      border: 1px solid rgba(180, 35, 24, .18);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .saved {
+      color: var(--ok);
+      font-size: 13px;
+      min-height: 20px;
+      margin-top: 8px;
+    }
+
+    .footer-space {
+      height: 88px;
+    }
+
+    @media (max-width: 720px) {
+      .app {
+        padding: 12px;
+      }
+
+      header {
+        margin: -12px -12px 12px;
+        padding: 10px 12px;
+      }
+
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .actions .primary {
+        grid-column: 1 / -1;
+      }
+
+      .meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        padding: 13px;
+      }
+
+      .item-head {
+        gap: 9px;
+      }
+
+      .item-number {
+        min-width: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="topbar">
+        <h1>Чек-лист проверки СЦ для iPhone v4</h1>
+      </div>
+    </header>
+
+    <section class="panel">
+      <div class="meta-grid">
+        <div>
+          <label for="checkDate">Дата проверки</label>
+          <input id="checkDate" type="date" autocomplete="off">
+        </div>
+        <div>
+          <label for="city">Город</label>
+          <input id="city" type="text" placeholder="Например: Москва" autocomplete="address-level2">
+        </div>
+      </div>
+      <div id="saveStatus" class="saved"></div>
+    </section>
+
+    <main id="checklist">
+      <h2 class="section-title">Требования по комнате приемки и ремонтной мастерской.</h2>
+      <section class="panel item" data-item-id="s0-i0"><div class="item-head"><span class="item-number">1</span><p class="item-text">Над или сбоку от входа в СЦ с улицы размещена вывеска «Сервисный центр». Рядом или на двери в СЦ табличка с режимом работы. Это две разные по назначению вещи (фото).</p></div><div class="status-row"><label for="value-s0-i0">Результат проверки</label><textarea id="value-s0-i0" data-value-for="s0-i0">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i0">Камера</label><input id="camera-s0-i0" data-file-for="s0-i0" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i0">Галерея</label><input id="gallery-s0-i0" data-file-for="s0-i0" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i0">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i0"></div></section>
+      <section class="panel item" data-item-id="s0-i1"><div class="item-head"><span class="item-number">2</span><p class="item-text">Помещение комнаты приемки офисного типа, разделено с техническими помещениями стенами и потолком, двери в соседние помещения оснащены табличками «служебное помещение» и ограничивают свободный проход Покупателей (фото).</p></div><div class="status-row"><label for="value-s0-i1">Результат проверки</label><textarea id="value-s0-i1" data-value-for="s0-i1">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i1">Камера</label><input id="camera-s0-i1" data-file-for="s0-i1" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i1">Галерея</label><input id="gallery-s0-i1" data-file-for="s0-i1" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i1">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i1"></div></section>
+      <section class="panel item" data-item-id="s0-i2"><div class="item-head"><span class="item-number">3</span><p class="item-text">В комнате приемки достаточное освещение для чтения документов, два посадочных места, столик, кулер, стаканы, мусорная корзина, сертификаты об авторизации Ресанта, Huter, Вихрь, стол приемки товара с закрепленной розеткой оснащенной УЗО, вся проводка закреплена (фото).</p></div><div class="status-row"><label for="value-s0-i2">Результат проверки</label><textarea id="value-s0-i2" data-value-for="s0-i2">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i2">Камера</label><input id="camera-s0-i2" data-file-for="s0-i2" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i2">Галерея</label><input id="gallery-s0-i2" data-file-for="s0-i2" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i2">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i2"></div></section>
+      <section class="panel item" data-item-id="s0-i3"><div class="item-head"><span class="item-number">4</span><p class="item-text">Уголок потребителя минимум на 6 карманов, копии документов, списки контролирующих органов, книга жалоб (оформленная и пронумерованная), закон о защите прав потребителей и расценки на ремонт, все оформлено согласно требованиям и на актуальное юр.лицо (фото).</p></div><div class="status-row"><label for="value-s0-i3">Результат проверки</label><textarea id="value-s0-i3" data-value-for="s0-i3">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i3">Камера</label><input id="camera-s0-i3" data-file-for="s0-i3" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i3">Галерея</label><input id="gallery-s0-i3" data-file-for="s0-i3" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i3">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i3"></div></section>
+      <section class="panel item" data-item-id="s0-i4"><div class="item-head"><span class="item-number">5</span><p class="item-text">Рабочее место МСЦ и шкаф для хранения документов содержится в порядке, есть журнал учета проверок юр.лиц. Есть QR-коды для отзывов Покупателей. (фото).</p></div><div class="status-row"><label for="value-s0-i4">Результат проверки</label><textarea id="value-s0-i4" data-value-for="s0-i4">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i4">Камера</label><input id="camera-s0-i4" data-file-for="s0-i4" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i4">Галерея</label><input id="gallery-s0-i4" data-file-for="s0-i4" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i4">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i4"></div></section>
+      <section class="panel item" data-item-id="s0-i5"><div class="item-head"><span class="item-number">6</span><p class="item-text">Ремонтная мастерская оснащена 3-х фазной розеткой, УЗО, шкафами для личной одежды СИ, помещением личной гигиены и комнатой для принятия пищи (фото).</p></div><div class="status-row"><label for="value-s0-i5">Результат проверки</label><textarea id="value-s0-i5" data-value-for="s0-i5">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i5">Камера</label><input id="camera-s0-i5" data-file-for="s0-i5" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i5">Галерея</label><input id="gallery-s0-i5" data-file-for="s0-i5" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i5">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i5"></div></section>
+      <section class="panel item" data-item-id="s0-i6"><div class="item-head"><span class="item-number">7</span><p class="item-text">Весь клиентский товар в ремонтной мастерской, кроме крупногабаритного хранится на стеллажах. Есть разграничение по этапам ремонта и с товаром складов брака (фото).</p></div><div class="status-row"><label for="value-s0-i6">Результат проверки</label><textarea id="value-s0-i6" data-value-for="s0-i6">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i6">Камера</label><input id="camera-s0-i6" data-file-for="s0-i6" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i6">Галерея</label><input id="gallery-s0-i6" data-file-for="s0-i6" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i6">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i6"></div></section>
+      <section class="panel item" data-item-id="s0-i7"><div class="item-head"><span class="item-number">8</span><p class="item-text">Запчасти подписаны по группам и хранятся в пластиковых контейнерах на стеллажах или в шкафах (фото).</p></div><div class="status-row"><label for="value-s0-i7">Результат проверки</label><textarea id="value-s0-i7" data-value-for="s0-i7">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i7">Камера</label><input id="camera-s0-i7" data-file-for="s0-i7" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i7">Галерея</label><input id="gallery-s0-i7" data-file-for="s0-i7" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i7">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i7"></div></section>
+      <section class="panel item" data-item-id="s0-i8"><div class="item-head"><span class="item-number">9</span><p class="item-text">Рабочие места СИ оснащены специальными верстаками с местами для хранения инструмента, стульями, дополнительным освещением. Содержаться в порядке (фото).</p></div><div class="status-row"><label for="value-s0-i8">Результат проверки</label><textarea id="value-s0-i8" data-value-for="s0-i8">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i8">Камера</label><input id="camera-s0-i8" data-file-for="s0-i8" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i8">Галерея</label><input id="gallery-s0-i8" data-file-for="s0-i8" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i8">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i8"></div></section>
+      <section class="panel item" data-item-id="s0-i9"><div class="item-head"><span class="item-number">10</span><p class="item-text">Рабочее место СИ по бензотехнике дополнительно оснащено подъемным механизмом и вытяжкой для выхлопных газов (фото).</p></div><div class="status-row"><label for="value-s0-i9">Результат проверки</label><textarea id="value-s0-i9" data-value-for="s0-i9">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i9">Камера</label><input id="camera-s0-i9" data-file-for="s0-i9" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i9">Галерея</label><input id="gallery-s0-i9" data-file-for="s0-i9" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i9">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i9"></div></section>
+      <section class="panel item" data-item-id="s0-i10"><div class="item-head"><span class="item-number">11</span><p class="item-text">У каждого СИ есть доступ к ПК и ресурсам компании HelpDesk, ResantaService (фото).</p></div><div class="status-row"><label for="value-s0-i10">Результат проверки</label><textarea id="value-s0-i10" data-value-for="s0-i10">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i10">Камера</label><input id="camera-s0-i10" data-file-for="s0-i10" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i10">Галерея</label><input id="gallery-s0-i10" data-file-for="s0-i10" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i10">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i10"></div></section>
+      <section class="panel item" data-item-id="s0-i11"><div class="item-head"><span class="item-number">12</span><p class="item-text">Гидростенд должен иметь в конструкции: а) Емкость для воды (бочка); б) Манометр; в) Расходомер; г) Блок управления с вольтметром и амперметром. (фото).</p></div><div class="status-row"><label for="value-s0-i11">Результат проверки</label><textarea id="value-s0-i11" data-value-for="s0-i11">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i11">Камера</label><input id="camera-s0-i11" data-file-for="s0-i11" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i11">Галерея</label><input id="gallery-s0-i11" data-file-for="s0-i11" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i11">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i11"></div></section>
+      <section class="panel item" data-item-id="s0-i12"><div class="item-head"><span class="item-number">13</span><p class="item-text">Температура, чистота воздуха в помещениях СЦ устраивает сотрудников. Спецодежда СИ чистая, в хорошем состоянии жалоб нет (фото если нет спецодежды или грязная, рваная).</p></div><div class="status-row"><label for="value-s0-i12">Результат проверки</label><textarea id="value-s0-i12" data-value-for="s0-i12">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s0-i12">Камера</label><input id="camera-s0-i12" data-file-for="s0-i12" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s0-i12">Галерея</label><input id="gallery-s0-i12" data-file-for="s0-i12" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s0-i12">Сбросить пункт</button></div><div class="photos" id="photos-list-s0-i12"></div></section>
+      <h2 class="section-title">Проверка клиентского товара.</h2>
+      <section class="panel item" data-item-id="s1-i0"><div class="item-head"><span class="item-number">2.1</span><p class="item-text">2.1 Список изделий с расхождением серийного номера:</p></div><div class="status-row"><label for="value-s1-i0">Результат проверки</label><textarea id="value-s1-i0" data-value-for="s1-i0">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s1-i0">Камера</label><input id="camera-s1-i0" data-file-for="s1-i0" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s1-i0">Галерея</label><input id="gallery-s1-i0" data-file-for="s1-i0" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s1-i0">Сбросить пункт</button></div><div class="photos" id="photos-list-s1-i0"></div></section>
+      <section class="panel item" data-item-id="s1-i1"><div class="item-head"><span class="item-number">2.2.</span><p class="item-text">2.2. Список изделий с нарушением статуса гарантия/негарантия:</p></div><div class="status-row"><label for="value-s1-i1">Результат проверки</label><textarea id="value-s1-i1" data-value-for="s1-i1">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s1-i1">Камера</label><input id="camera-s1-i1" data-file-for="s1-i1" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s1-i1">Галерея</label><input id="gallery-s1-i1" data-file-for="s1-i1" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s1-i1">Сбросить пункт</button></div><div class="photos" id="photos-list-s1-i1"></div></section>
+      <section class="panel item" data-item-id="s1-i2"><div class="item-head"><span class="item-number">2.3.</span><p class="item-text">2.3. Список недостающих изделий, которые числятся в базе СЦ в ремонте:</p></div><div class="status-row"><label for="value-s1-i2">Результат проверки</label><textarea id="value-s1-i2" data-value-for="s1-i2">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s1-i2">Камера</label><input id="camera-s1-i2" data-file-for="s1-i2" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s1-i2">Галерея</label><input id="gallery-s1-i2" data-file-for="s1-i2" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s1-i2">Сбросить пункт</button></div><div class="photos" id="photos-list-s1-i2"></div></section>
+      <section class="panel item" data-item-id="s1-i3"><div class="item-head"><span class="item-number">2.4.</span><p class="item-text">2.4. Список излишков изделий, которые числятся в базе СЦ как выданные или не принятые:</p></div><div class="status-row"><label for="value-s1-i3">Результат проверки</label><textarea id="value-s1-i3" data-value-for="s1-i3">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s1-i3">Камера</label><input id="camera-s1-i3" data-file-for="s1-i3" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s1-i3">Галерея</label><input id="gallery-s1-i3" data-file-for="s1-i3" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s1-i3">Сбросить пункт</button></div><div class="photos" id="photos-list-s1-i3"></div></section>
+      <section class="panel item" data-item-id="s1-i4"><div class="item-head"><span class="item-number">2.5.</span><p class="item-text">2.5. Список недостающих изделий, которые числятся на складах брака:</p></div><div class="status-row"><label for="value-s1-i4">Результат проверки</label><textarea id="value-s1-i4" data-value-for="s1-i4">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s1-i4">Камера</label><input id="camera-s1-i4" data-file-for="s1-i4" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s1-i4">Галерея</label><input id="gallery-s1-i4" data-file-for="s1-i4" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s1-i4">Сбросить пункт</button></div><div class="photos" id="photos-list-s1-i4"></div></section>
+      <section class="panel item" data-item-id="s1-i5"><div class="item-head"><span class="item-number">2.6.</span><p class="item-text">2.6. Список излишков изделий, которые числятся на складах брака:</p></div><div class="status-row"><label for="value-s1-i5">Результат проверки</label><textarea id="value-s1-i5" data-value-for="s1-i5">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s1-i5">Камера</label><input id="camera-s1-i5" data-file-for="s1-i5" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s1-i5">Галерея</label><input id="gallery-s1-i5" data-file-for="s1-i5" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s1-i5">Сбросить пункт</button></div><div class="photos" id="photos-list-s1-i5"></div></section>
+      <section class="panel item" data-item-id="s1-i6"><div class="item-head"><span class="item-number">2.7.</span><p class="item-text">2.7. Результат проведенной выборочной проверки склада запчастей:</p></div><div class="status-row"><label for="value-s1-i6">Результат проверки</label><textarea id="value-s1-i6" data-value-for="s1-i6">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s1-i6">Камера</label><input id="camera-s1-i6" data-file-for="s1-i6" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s1-i6">Галерея</label><input id="gallery-s1-i6" data-file-for="s1-i6" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s1-i6">Сбросить пункт</button></div><div class="photos" id="photos-list-s1-i6"></div></section>
+      <section class="panel item" data-item-id="s1-i7"><div class="item-head"><span class="item-number">2.7.1.</span><p class="item-text">2.7.1. При расхождениях на складе запчастей укажите номер документа инвентаризации в базе СЦ, которую вы провели при выборочной проверке:</p></div><div class="status-row"><label for="value-s1-i7">Результат проверки</label><textarea id="value-s1-i7" data-value-for="s1-i7">Ок</textarea><p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p></div><div class="photo-tools"><label class="file-label" for="camera-s1-i7">Камера</label><input id="camera-s1-i7" data-file-for="s1-i7" type="file" accept="image/*" capture="environment"><label class="file-label" for="gallery-s1-i7">Галерея</label><input id="gallery-s1-i7" data-file-for="s1-i7" type="file" accept="image/*" multiple><button class="small" type="button" data-reset="s1-i7">Сбросить пункт</button></div><div class="photos" id="photos-list-s1-i7"></div></section>
+    </main>
+    <section class="panel bottom-actions">
+      <div class="actions">
+        <button id="createReport" class="primary" type="button">Создать</button>
+        <button id="saveNow" type="button">Сохранить</button>
+        <button id="clearAll" class="danger" type="button">Очистить</button>
+      </div>
+    </section>
+    <div class="footer-space"></div>
+  </div>
+
+  <script>
+    (function () {
+      var STATE_KEY = 'sc-checklist-iphone-v4-state';
+      var PHOTOS_KEY = 'sc-checklist-iphone-v4-photos';
+
+      function byId(id) {
+        return document.getElementById(id);
+      }
+
+      function readJson(key, fallback) {
+        try {
+          return JSON.parse(localStorage.getItem(key) || '') || fallback;
+        } catch (error) {
+          return fallback;
+        }
+      }
+
+      function writeJson(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (error) {
+          alert('На iPhone не хватает памяти для сохранения всех фото. Удалите часть фото или добавьте меньше снимков.');
+        }
+      }
+
+      function status(text) {
+        var el = byId('saveStatus');
+        if (el) el.textContent = text;
+      }
+
+      function getState() {
+        return readJson(STATE_KEY, { checkDate: '', city: '', values: {} });
+      }
+
+      function setState(state) {
+        writeJson(STATE_KEY, state);
+      }
+
+      function getPhotos() {
+        return readJson(PHOTOS_KEY, {});
+      }
+
+      function setPhotos(photos) {
+        writeJson(PHOTOS_KEY, photos);
+      }
+
+      function saveForm() {
+        var state = getState();
+        var date = byId('checkDate');
+        var city = byId('city');
+        var fields = document.querySelectorAll('[data-value-for]');
+        state.checkDate = date ? date.value : '';
+        state.city = city ? city.value : '';
+        state.values = state.values || {};
+        for (var i = 0; i < fields.length; i++) {
+          state.values[fields[i].getAttribute('data-value-for')] = fields[i].value;
+        }
+        setState(state);
+        status('Сохранено');
+      }
+
+      function restoreForm() {
+        var state = getState();
+        var date = byId('checkDate');
+        var city = byId('city');
+        if (date && state.checkDate) date.value = state.checkDate;
+        if (city && state.city) city.value = state.city;
+        var fields = document.querySelectorAll('[data-value-for]');
+        for (var i = 0; i < fields.length; i++) {
+          var id = fields[i].getAttribute('data-value-for');
+          if (state.values && typeof state.values[id] === 'string') fields[i].value = state.values[id];
+        }
+        renderAllPhotos();
+      }
+
+      function resizeFile(file, done) {
+        var reader = new FileReader();
+        reader.onload = function () {
+          var image = new Image();
+          image.onload = function () {
+            var maxSide = 900;
+            var scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+            var canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(image.width * scale));
+            canvas.height = Math.max(1, Math.round(image.height * scale));
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            done(canvas.toDataURL('image/jpeg', 0.68));
+          };
+          image.onerror = function () {
+            alert('Не удалось прочитать фото.');
+          };
+          image.src = reader.result;
+        };
+        reader.onerror = function () {
+          alert('Не удалось открыть выбранный файл.');
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function renderPhotos(itemId) {
+        var container = byId('photos-list-' + itemId);
+        if (!container) return;
+        var all = getPhotos();
+        var list = all[itemId] || [];
+        container.innerHTML = '';
+        for (var i = 0; i < list.length; i++) {
+          (function (index) {
+            var wrap = document.createElement('div');
+            wrap.className = 'photo';
+            wrap.innerHTML = '<img alt="Фото" src="' + list[index] + '"><button type="button" aria-label="Удалить фото">×</button>';
+            wrap.querySelector('button').onclick = function () {
+              var photos = getPhotos();
+              var current = photos[itemId] || [];
+              current.splice(index, 1);
+              photos[itemId] = current;
+              setPhotos(photos);
+              renderPhotos(itemId);
+            };
+            container.appendChild(wrap);
+          })(i);
+        }
+      }
+
+      function renderAllPhotos() {
+        var items = document.querySelectorAll('[data-item-id]');
+        for (var i = 0; i < items.length; i++) renderPhotos(items[i].getAttribute('data-item-id'));
+      }
+
+      function addFiles(itemId, files) {
+        if (!files || !files.length) return;
+        var index = 0;
+        function next() {
+          if (index >= files.length) {
+            renderPhotos(itemId);
+            saveForm();
+            return;
+          }
+          var file = files[index++];
+          if (!file.type || file.type.indexOf('image/') !== 0) {
+            next();
+            return;
+          }
+          resizeFile(file, function (dataUrl) {
+            var photos = getPhotos();
+            if (!photos[itemId]) photos[itemId] = [];
+            photos[itemId].push(dataUrl);
+            setPhotos(photos);
+            next();
+          });
+        }
+        next();
+      }
+
+      function htmlEscape(value) {
+        return String(value || '').replace(/[&<>"']/g, function (char) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char];
+        });
+      }
+
+      function safeName(value) {
+        return String(value || 'город').replace(/[\\/:*?"<>|]+/g, '_').replace(/\s+/g, ' ');
+      }
+
+      function createReport() {
+        saveForm();
+        var date = byId('checkDate') ? byId('checkDate').value : '';
+        var city = byId('city') ? byId('city').value : '';
+        var photos = getPhotos();
+        var html = '<!doctype html><html><head><meta charset="utf-8"><style>body{font-family:Arial,sans-serif;font-size:11pt}table{border-collapse:collapse;width:100%}td,th{border:1px solid #222;padding:6px;vertical-align:top}th{background:#e9eef2}.p{width:165pt;height:124pt;object-fit:contain;margin:3pt;background:#fff}</style></head><body>';
+        html += '<h1 style="text-align:center">Чек лист/отчет по проверке СЦ ревизором.</h1>';
+        html += '<table><tr><td><b>Дата проверки</b></td><td>' + htmlEscape(date) + '</td></tr><tr><td><b>СЦ в городе</b></td><td>' + htmlEscape(city) + '</td></tr></table>';
+        html += '<table><tr><th>№</th><th>Пункт проверки</th><th>Результат</th><th>Фото</th></tr>';
+        var items = document.querySelectorAll('[data-item-id]');
+        for (var i = 0; i < items.length; i++) {
+          var itemId = items[i].getAttribute('data-item-id');
+          var num = items[i].querySelector('.item-number');
+          var text = items[i].querySelector('.item-text');
+          var field = items[i].querySelector('[data-value-for]');
+          var value = field && field.value.replace(/\s+/g, '') ? field.value : 'Ок';
+          var photoHtml = '';
+          var itemPhotos = photos[itemId] || [];
+          for (var j = 0; j < itemPhotos.length; j++) {
+            photoHtml += '<p><img class="p" src="' + itemPhotos[j] + '"></p>';
+          }
+          html += '<tr><td>' + htmlEscape(num ? num.textContent : '') + '</td><td>' + htmlEscape(text ? text.textContent : '') + '</td><td>' + htmlEscape(value).replace(/\n/g, '<br>') + '</td><td>' + photoHtml + '</td></tr>';
+        }
+        html += '</table></body></html>';
+        var blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
+        var filename = 'Проверка СЦ_' + safeName(city) + '_' + (date || new Date().toISOString().slice(0, 10)) + '.doc';
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+      }
+
+      function clearForm() {
+        if (!confirm('Удалить все введенные данные и фотографии?')) return;
+        localStorage.removeItem(STATE_KEY);
+        localStorage.removeItem(PHOTOS_KEY);
+        var fields = document.querySelectorAll('[data-value-for]');
+        for (var i = 0; i < fields.length; i++) fields[i].value = 'Ок';
+        var date = byId('checkDate');
+        var city = byId('city');
+        if (date) date.value = '';
+        if (city) city.value = '';
+        renderAllPhotos();
+        status('Очищено');
+      }
+
+      function bindFallback() {
+        restoreForm();
+        var fields = document.querySelectorAll('[data-value-for]');
+        for (var i = 0; i < fields.length; i++) {
+          fields[i].onfocus = function () {
+            if (window.SC_MODERN_READY) return;
+            if (this.value.replace(/\s+/g, '').toLowerCase() === 'ок') this.value = '';
+          };
+          fields[i].oninput = function () {
+            if (!window.SC_MODERN_READY) saveForm();
+          };
+        }
+        var fileInputs = document.querySelectorAll('[data-file-for]');
+        for (var f = 0; f < fileInputs.length; f++) {
+          fileInputs[f].onchange = function () {
+            if (window.SC_MODERN_READY) return;
+            addFiles(this.getAttribute('data-file-for'), this.files);
+            this.value = '';
+          };
+        }
+        var save = byId('saveNow');
+        var create = byId('createReport');
+        var clear = byId('clearAll');
+        if (save) save.onclick = function (event) { if (!window.SC_MODERN_READY) { event.preventDefault(); saveForm(); } };
+        if (create) create.onclick = function (event) { if (!window.SC_MODERN_READY) { event.preventDefault(); createReport(); } };
+        if (clear) clear.onclick = function (event) { if (!window.SC_MODERN_READY) { event.preventDefault(); clearForm(); } };
+        var date = byId('checkDate');
+        var city = byId('city');
+        if (date) date.oninput = function () { if (!window.SC_MODERN_READY) saveForm(); };
+        if (city) city.oninput = function () { if (!window.SC_MODERN_READY) saveForm(); };
+        status('Форма готова');
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindFallback);
+      } else {
+        bindFallback();
+      }
+    })();
+  </script>
+
+  <script>
+    const DB_NAME = 'sc-checklist-report-db';
+    const DB_VERSION = 1;
+    const PHOTO_STORE = 'photos';
+    const STATE_KEY = 'sc-checklist-report-state-v1';
+    const PHOTO_FALLBACK_KEY = 'sc-checklist-report-photos-v1';
+
+    const sections = [
+      {
+        title: 'Требования по комнате приемки и ремонтной мастерской.',
+        items: [
+          'Над или сбоку от входа в СЦ с улицы размещена вывеска «Сервисный центр». Рядом или на двери в СЦ табличка с режимом работы. Это две разные по назначению вещи (фото).',
+          'Помещение комнаты приемки офисного типа, разделено с техническими помещениями стенами и потолком, двери в соседние помещения оснащены табличками «служебное помещение» и ограничивают свободный проход Покупателей (фото).',
+          'В комнате приемки достаточное освещение для чтения документов, два посадочных места, столик, кулер, стаканы, мусорная корзина, сертификаты об авторизации Ресанта, Huter, Вихрь, стол приемки товара с закрепленной розеткой оснащенной УЗО, вся проводка закреплена (фото).',
+          'Уголок потребителя минимум на 6 карманов, копии документов, списки контролирующих органов, книга жалоб (оформленная и пронумерованная), закон о защите прав потребителей и расценки на ремонт, все оформлено согласно требованиям и на актуальное юр.лицо (фото).',
+          'Рабочее место МСЦ и шкаф для хранения документов содержится в порядке, есть журнал учета проверок юр.лиц. Есть QR-коды для отзывов Покупателей. (фото).',
+          'Ремонтная мастерская оснащена 3-х фазной розеткой, УЗО, шкафами для личной одежды СИ, помещением личной гигиены и комнатой для принятия пищи (фото).',
+          'Весь клиентский товар в ремонтной мастерской, кроме крупногабаритного хранится на стеллажах. Есть разграничение по этапам ремонта и с товаром складов брака (фото).',
+          'Запчасти подписаны по группам и хранятся в пластиковых контейнерах на стеллажах или в шкафах (фото).',
+          'Рабочие места СИ оснащены специальными верстаками с местами для хранения инструмента, стульями, дополнительным освещением. Содержаться в порядке (фото).',
+          'Рабочее место СИ по бензотехнике дополнительно оснащено подъемным механизмом и вытяжкой для выхлопных газов (фото).',
+          'У каждого СИ есть доступ к ПК и ресурсам компании HelpDesk, ResantaService (фото).',
+          'Гидростенд должен иметь в конструкции: а) Емкость для воды (бочка); б) Манометр; в) Расходомер; г) Блок управления с вольтметром и амперметром. (фото).',
+          'Температура, чистота воздуха в помещениях СЦ устраивает сотрудников. Спецодежда СИ чистая, в хорошем состоянии жалоб нет (фото если нет спецодежды или грязная, рваная).'
+        ]
+      },
+      {
+        title: 'Проверка клиентского товара.',
+        items: [
+          '2.1 Список изделий с расхождением серийного номера:',
+          '2.2. Список изделий с нарушением статуса гарантия/негарантия:',
+          '2.3. Список недостающих изделий, которые числятся в базе СЦ в ремонте:',
+          '2.4. Список излишков изделий, которые числятся в базе СЦ как выданные или не принятые:',
+          '2.5. Список недостающих изделий, которые числятся на складах брака:',
+          '2.6. Список излишков изделий, которые числятся на складах брака:',
+          '2.7. Результат проведенной выборочной проверки склада запчастей:',
+          '2.7.1. При расхождениях на складе запчастей укажите номер документа инвентаризации в базе СЦ, которую вы провели при выборочной проверке:'
+        ]
+      }
+    ];
+
+    const flatItems = sections.flatMap((section, sectionIndex) =>
+      section.items.map((text, itemIndex) => ({
+        id: `s${sectionIndex}-i${itemIndex}`,
+        number: sectionIndex === 0 ? String(itemIndex + 1) : text.match(/^([\d.]+)/)?.[1] || String(itemIndex + 1),
+        sectionTitle: section.title,
+        text
+      }))
+    );
+
+    let db;
+    let state = {
+      checkDate: '',
+      city: '',
+      values: Object.fromEntries(flatItems.map(item => [item.id, 'Ок']))
+    };
+
+    function openDb() {
+      return new Promise((resolve, reject) => {
+        if (!window.indexedDB) {
+          reject(new Error('IndexedDB недоступен'));
+          return;
+        }
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = () => {
+          const database = request.result;
+          if (!database.objectStoreNames.contains(PHOTO_STORE)) {
+            database.createObjectStore(PHOTO_STORE, { keyPath: 'id' });
+          }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function txStore(mode = 'readonly') {
+      return db.transaction(PHOTO_STORE, mode).objectStore(PHOTO_STORE);
+    }
+
+    if (!window.photoMemoryBackup) {
+		window.photoMemoryBackup = {};
+	}
+	
+	function readFallbackPhotos() {
+      try {
+		return JSON.parse(localStorage.getItem(PHOTO_FALLBACK_KEY) || '{}');
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function writeFallbackPhotos(allPhotos) {
+	  try {
+		localStorage.setItem(PHOTO_FALLBACK_KEY, JSON.stringify(allPhotos));
+	  } catch (error) {
+   
+		window.photoMemoryBackup = allPhotos;
+		console.log("Сохранено в оперативную память устройства");
+		}
+	}
+
+    function getPhotos(itemId) {
+      if (!db) {
+        return Promise.resolve(readFallbackPhotos()[itemId] || []);
+      }
+      return new Promise((resolve, reject) => {
+        const request = txStore().get(itemId);
+        request.onsuccess = () => resolve(request.result?.photos || []);
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function putPhotos(itemId, photos) {
+      if (!db) {
+        const allPhotos = readFallbackPhotos();
+        allPhotos[itemId] = photos;
+        writeFallbackPhotos(allPhotos);
+        return Promise.resolve();
+      }
+      return new Promise((resolve, reject) => {
+        const request = txStore('readwrite').put({ id: itemId, photos });
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function clearPhotos() {
+      if (!db) {
+        localStorage.removeItem(PHOTO_FALLBACK_KEY);
+        return Promise.resolve();
+      }
+      return new Promise((resolve, reject) => {
+        const request = txStore('readwrite').clear();
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STATE_KEY);
+      if (!saved) {
+        state.checkDate = new Date().toISOString().slice(0, 10);
+        return;
+      }
+      try {
+        const parsed = JSON.parse(saved);
+        state = {
+          ...state,
+          ...parsed,
+          values: { ...state.values, ...(parsed.values || {}) }
+        };
+      } catch (error) {
+        state.checkDate = new Date().toISOString().slice(0, 10);
+      }
+    }
+
+    function saveState(message = 'Сохранено') {
+        try {
+			localStorage.setItem('CHECKLIST_STATE_KEY', JSON.stringify(state)); // имя ключа может отличаться
+		if (document.getElementById('saveStatus')) {
+			document.getElementById('saveStatus').textContent = message;
+		}
+		} catch (e) {
+    // Игнорируем ошибку на iPhone, чтобы скрипт продолжал работать в памяти
+		if (document.getElementById('saveStatus')) {
+			document.getElementById('saveStatus').textContent = message + " (в памяти)";
+		}
+		}
+    }
+
+    function render() {
+      document.getElementById('checkDate').value = state.checkDate;
+      document.getElementById('city').value = state.city;
+
+      const root = document.getElementById('checklist');
+      root.innerHTML = '';
+
+      sections.forEach((section, sectionIndex) => {
+        const title = document.createElement('h2');
+        title.className = 'section-title';
+        title.textContent = section.title;
+        root.appendChild(title);
+
+        section.items.forEach((text, itemIndex) => {
+          const item = flatItems.find(entry => entry.id === `s${sectionIndex}-i${itemIndex}`);
+          root.appendChild(renderItem(item));
+          refreshPhotos(item.id);
+        });
+      });
+    }
+
+    function renderItem(item) {
+      const panel = document.createElement('section');
+      panel.className = 'panel item';
+      panel.dataset.itemId = item.id;
+
+      panel.innerHTML = `
+        <div class="item-head">
+          <span class="item-number">${escapeHtml(item.number)}</span>
+          <p class="item-text">${escapeHtml(item.text)}</p>
+        </div>
+        <div class="status-row">
+          <label for="value-${item.id}">Результат проверки</label>
+          <textarea id="value-${item.id}" data-value-for="${item.id}">${escapeHtml(state.values[item.id] || 'Ок')}</textarea>
+          <p class="hint">Оставьте «Ок» или замените текстом выявленного нарушения.</p>
+        </div>
+        <div class="photo-tools">
+          <label class="file-label" for="camera-${item.id}">Камера</label>
+          <input id="camera-${item.id}" data-file-for="${item.id}" type="file" accept="image/*" capture="environment">
+          <label class="file-label" for="gallery-${item.id}">Галерея</label>
+          <input id="gallery-${item.id}" data-file-for="${item.id}" type="file" accept="image/*" multiple>
+          <button class="small" type="button" data-reset="${item.id}">Сбросить пункт</button>
+        </div>
+        <div class="photos" id="photos-list-${item.id}"></div>
+      `;
+
+      panel.querySelector('[data-value-for]').addEventListener('input', event => {
+        state.values[item.id] = event.target.value;
+        saveState('Автосохранено');
+      });
+
+      panel.querySelector('[data-value-for]').addEventListener('focus', event => {
+        if (event.target.value.trim().toLowerCase() !== 'ок') return;
+        event.target.value = '';
+        state.values[item.id] = '';
+        saveState('Автосохранено');
+      });
+
+      panel.querySelectorAll('[data-file-for]').forEach(input => {
+        input.addEventListener('change', event => addFiles(item.id, Array.from(event.target.files || []), event.target));
+      });
+
+      panel.querySelector('[data-reset]').addEventListener('click', async () => {
+        if (!confirm('Сбросить текст и фото по этому пункту?')) return;
+        state.values[item.id] = 'Ок';
+        panel.querySelector('[data-value-for]').value = 'Ок';
+        await putPhotos(item.id, []);
+        await refreshPhotos(item.id);
+        saveState('Пункт сброшен');
+      });
+
+      return panel;
+    }
+
+    async function refreshPhotos(itemId) {
+      const list = document.getElementById(`photos-list-${itemId}`);
+      if (!list) return;
+      const photos = await getPhotos(itemId);
+      list.innerHTML = '';
+      photos.forEach((photo, index) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'photo';
+        wrap.innerHTML = `
+          <img alt="Фото ${index + 1}" src="${photo.dataUrl}">
+          <button type="button" title="Удалить фото" aria-label="Удалить фото">×</button>
+        `;
+        wrap.querySelector('button').addEventListener('click', async () => {
+          const next = photos.filter((_, photoIndex) => photoIndex !== index);
+          await putPhotos(itemId, next);
+          await refreshPhotos(itemId);
+        });
+        list.appendChild(wrap);
+      });
+    }
+
+    async function addFiles(itemId, files, input) {
+      if (!files.length) return;
+      const current = await getPhotos(itemId);
+      const converted = [];
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+        converted.push({
+          name: file.name,
+          type: 'image/jpeg',
+          dataUrl: await resizeImage(file, 1100, .74)
+        });
+      }
+      await putPhotos(itemId, current.concat(converted));
+      input.value = '';
+      await refreshPhotos(itemId);
+      saveState('Фото сохранены');
+    }
+
+    function resizeImage(file, maxSide, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(reader.error);
+        reader.onload = () => {
+          const image = new Image();
+          image.onerror = reject;
+          image.onload = () => {
+            const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(image.width * scale));
+            canvas.height = Math.max(1, Math.round(image.height * scale));
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          image.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function normalizeReportImage(dataUrl, width = 800, height = 600, quality = .68) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onerror = reject;
+        image.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+
+          const scale = Math.min(width / image.width, height / image.height);
+          const drawWidth = Math.round(image.width * scale);
+          const drawHeight = Math.round(image.height * scale);
+          const left = Math.round((width - drawWidth) / 2);
+          const top = Math.round((height - drawHeight) / 2);
+          ctx.drawImage(image, left, top, drawWidth, drawHeight);
+
+          resolve({
+            type: 'image/jpeg',
+            dataUrl: canvas.toDataURL('image/jpeg', quality)
+          });
+        };
+        image.src = dataUrl;
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[char]));
+    }
+
+    function fileSafe(value) {
+      return String(value || '')
+        .trim()
+        .replace(/[\\/:*?"<>|]+/g, '_')
+        .replace(/\s+/g, ' ')
+        || 'город';
+    }
+
+    function humanDate(isoDate) {
+      if (!isoDate) return '';
+      const [year, month, day] = isoDate.split('-');
+      return `${day}.${month}.${year}`;
+    }
+
+    function dataUrlToBase64(dataUrl) {
+      return dataUrl.split(',')[1] || '';
+    }
+
+    function imageExtension(type) {
+      if (type === 'image/png') return 'png';
+      if (type === 'image/webp') return 'webp';
+      return 'jpg';
+    }
+
+    function buildReportHtml(photoMap, imageLocations) {
+      const checkDate = humanDate(state.checkDate);
+      const city = state.city || '';
+      let imageIndex = 0;
+      let body = `
+        <h1>Чек лист/отчет по проверке СЦ ревизором.</h1>
+        <table class="header-table">
+          <tr><td>Дата проверки</td><td>${escapeHtml(checkDate)}</td></tr>
+          <tr><td>СЦ в городе</td><td>${escapeHtml(city)}</td></tr>
+        </table>
+      `;
+
+      sections.forEach((section, sectionIndex) => {
+        body += `<h2>${escapeHtml(section.title)}</h2>`;
+        body += '<table class="check-table"><thead><tr><th>№</th><th>Пункт проверки</th><th>Результат</th><th>Фото</th></tr></thead><tbody>';
+        section.items.forEach((text, itemIndex) => {
+          const item = flatItems.find(entry => entry.id === `s${sectionIndex}-i${itemIndex}`);
+          const value = (state.values[item.id] || '').trim() || 'Ок';
+          const photos = photoMap[item.id] || [];
+          const photoHtml = photos.length
+            ? photos.map(() => `<p class="photo-line"><img class="report-photo" src="${imageLocations[imageIndex++]}" width="220" height="165"></p>`).join('')
+            : '';
+          body += `
+            <tr>
+              <td>${escapeHtml(item.number)}</td>
+              <td>${escapeHtml(text)}</td>
+              <td>${escapeHtml(value).replace(/\n/g, '<br>')}</td>
+              <td>${photoHtml}</td>
+            </tr>
+          `;
+        });
+        body += '</tbody></table>';
+      });
+
+      return `
+        <!doctype html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; }
+            h1 { font-size: 16pt; text-align: center; margin: 0 0 14pt; }
+            h2 { font-size: 13pt; margin: 16pt 0 8pt; }
+            table { border-collapse: collapse; width: 100%; }
+            td, th { border: 1px solid #222; padding: 5pt; vertical-align: top; }
+            th { background: #e9eef2; text-align: center; }
+            .header-table { margin-bottom: 14pt; }
+            .header-table td:first-child { width: 35%; font-weight: bold; }
+            .check-table td:first-child, .check-table th:first-child { width: 34pt; text-align: center; }
+            .check-table td:nth-child(3) { width: 24%; }
+            .check-table td:nth-child(4) { width: 30%; }
+            .report-photo { width: 165pt; height: 124pt; margin: 3pt 0; }
+            .photo-line { margin: 0 0 6pt; text-align: center; }
+            p { margin: 0 0 6pt; }
+          </style>
+        </head>
+        <body>${body}</body>
+        </html>
+      `;
+    }
+
+    function buildMhtml(html, photos) {
+      const boundary = `----=_SCReport_${Date.now()}`;
+      const encodedHtml = btoa(unescape(encodeURIComponent(html)));
+      const parts = [
+        'MIME-Version: 1.0',
+        `Content-Type: multipart/related; boundary="${boundary}"; type="text/html"`,
+        '',
+        `--${boundary}`,
+        'Content-Type: text/html; charset="utf-8"',
+        'Content-Transfer-Encoding: base64',
+        'Content-Location: file:///report.htm',
+        '',
+        encodedHtml
+      ];
+
+      photos.forEach((photo, index) => {
+        const extension = imageExtension(photo.type);
+        parts.push(
+          `--${boundary}`,
+          `Content-Type: ${photo.type || 'image/jpeg'}`,
+          'Content-Transfer-Encoding: base64',
+          `Content-Location: file:///photo-${index + 1}.${extension}`,
+          '',
+          dataUrlToBase64(photo.dataUrl)
+        );
+      });
+
+      parts.push(`--${boundary}--`);
+      return parts.join('\r\n');
+    }
+
+    function xmlEscape(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&apos;'
+      }[char]));
+    }
+
+    function paragraphXml(value, options = {}) {
+      const text = String(value ?? '');
+      const bold = options.bold ? '<w:b/>' : '';
+      const size = options.size ? `<w:sz w:val="${options.size}"/>` : '';
+      const align = options.align ? `<w:jc w:val="${options.align}"/>` : '';
+      const runs = text.split('\n').map((line, index) => {
+        const br = index ? '<w:br/>' : '';
+        return `<w:r><w:rPr>${bold}${size}</w:rPr>${br}<w:t xml:space="preserve">${xmlEscape(line)}</w:t></w:r>`;
+      }).join('');
+      return `<w:p><w:pPr>${align}</w:pPr>${runs || '<w:r><w:t></w:t></w:r>'}</w:p>`;
+    }
+
+    function cellXml(content, widthPct) {
+      const width = widthPct ? `<w:tcW w:w="${widthPct}" w:type="pct"/>` : '';
+      return `<w:tc><w:tcPr>${width}<w:tcMar><w:top w:w="80" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tcMar></w:tcPr>${content}</w:tc>`;
+    }
+
+    function imageXml(photo, index) {
+      const cx = 2095500;
+      const cy = 1574800;
+      return `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${index + 1}" name="Фото ${index + 1}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="${index + 1}" name="photo-${index + 1}.jpg"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="${photo.rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+    }
+
+    function tableXml(rows) {
+      return `<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:tblBorders><w:top w:val="single" w:sz="6" w:space="0" w:color="222222"/><w:left w:val="single" w:sz="6" w:space="0" w:color="222222"/><w:bottom w:val="single" w:sz="6" w:space="0" w:color="222222"/><w:right w:val="single" w:sz="6" w:space="0" w:color="222222"/><w:insideH w:val="single" w:sz="6" w:space="0" w:color="222222"/><w:insideV w:val="single" w:sz="6" w:space="0" w:color="222222"/></w:tblBorders></w:tblPr>${rows.join('')}</w:tbl>`;
+    }
+
+    function buildDocumentXml(photoMap) {
+      const checkDate = humanDate(state.checkDate);
+      const city = state.city || '';
+      let imageIndex = 0;
+      const parts = [
+        paragraphXml('Чек лист/отчет по проверке СЦ ревизором.', { bold: true, size: 32, align: 'center' }),
+        tableXml([
+          `<w:tr>${cellXml(paragraphXml('Дата проверки', { bold: true }), 1800)}${cellXml(paragraphXml(checkDate), 3200)}</w:tr>`,
+          `<w:tr>${cellXml(paragraphXml('СЦ в городе', { bold: true }), 1800)}${cellXml(paragraphXml(city), 3200)}</w:tr>`
+        ])
+      ];
+
+      sections.forEach((section, sectionIndex) => {
+        parts.push(paragraphXml(section.title, { bold: true, size: 26 }));
+        const rows = [
+          `<w:tr>${cellXml(paragraphXml('№', { bold: true, align: 'center' }), 350)}${cellXml(paragraphXml('Пункт проверки', { bold: true, align: 'center' }), 2250)}${cellXml(paragraphXml('Результат', { bold: true, align: 'center' }), 1100)}${cellXml(paragraphXml('Фото', { bold: true, align: 'center' }), 1300)}</w:tr>`
+        ];
+        section.items.forEach((text, itemIndex) => {
+          const item = flatItems.find(entry => entry.id === `s${sectionIndex}-i${itemIndex}`);
+          const value = (state.values[item.id] || '').trim() || 'Ок';
+          const photos = photoMap[item.id] || [];
+          const photoContent = photos.length
+            ? photos.map(photo => imageXml(photo, imageIndex++)).join('')
+            : paragraphXml('');
+          rows.push(`<w:tr>${cellXml(paragraphXml(item.number, { align: 'center' }), 350)}${cellXml(paragraphXml(text), 2250)}${cellXml(paragraphXml(value), 1100)}${cellXml(photoContent, 1300)}</w:tr>`);
+        });
+        parts.push(tableXml(rows));
+      });
+
+      return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>${parts.join('')}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="850" w:right="700" w:bottom="850" w:left="700" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+    }
+
+    function base64ToBytes(base64) {
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    }
+
+    const crcTable = (() => {
+      const table = new Uint32Array(256);
+      for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+        table[n] = c >>> 0;
+      }
+      return table;
+    })();
+
+    function crc32(bytes) {
+      let crc = 0xffffffff;
+      for (const byte of bytes) crc = crcTable[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+      return (crc ^ 0xffffffff) >>> 0;
+    }
+
+    function dosDateTime(date = new Date()) {
+      const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
+      const day = ((date.getFullYear() - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate();
+      return { time, day };
+    }
+
+    function makeZip(files) {
+      const encoder = new TextEncoder();
+      const chunks = [];
+      const central = [];
+      let offset = 0;
+      const { time, day } = dosDateTime();
+
+      function push(bytes) {
+        chunks.push(bytes);
+        offset += bytes.length;
+      }
+
+      files.forEach(file => {
+        const nameBytes = encoder.encode(file.name);
+        const data = typeof file.data === 'string' ? encoder.encode(file.data) : file.data;
+        const crc = crc32(data);
+        const localOffset = offset;
+        const local = new Uint8Array(30 + nameBytes.length);
+        const view = new DataView(local.buffer);
+        view.setUint32(0, 0x04034b50, true);
+        view.setUint16(4, 20, true);
+        view.setUint16(10, time, true);
+        view.setUint16(12, day, true);
+        view.setUint32(14, crc, true);
+        view.setUint32(18, data.length, true);
+        view.setUint32(22, data.length, true);
+        view.setUint16(26, nameBytes.length, true);
+        local.set(nameBytes, 30);
+        push(local);
+        push(data);
+
+        const header = new Uint8Array(46 + nameBytes.length);
+        const centralView = new DataView(header.buffer);
+        centralView.setUint32(0, 0x02014b50, true);
+        centralView.setUint16(4, 20, true);
+        centralView.setUint16(6, 20, true);
+        centralView.setUint16(12, time, true);
+        centralView.setUint16(14, day, true);
+        centralView.setUint32(16, crc, true);
+        centralView.setUint32(20, data.length, true);
+        centralView.setUint32(24, data.length, true);
+        centralView.setUint16(28, nameBytes.length, true);
+        centralView.setUint32(42, localOffset, true);
+        header.set(nameBytes, 46);
+        central.push(header);
+      });
+
+      const centralOffset = offset;
+      central.forEach(push);
+      const centralSize = offset - centralOffset;
+      const end = new Uint8Array(22);
+      const endView = new DataView(end.buffer);
+      endView.setUint32(0, 0x06054b50, true);
+      endView.setUint16(8, files.length, true);
+      endView.setUint16(10, files.length, true);
+      endView.setUint32(12, centralSize, true);
+      endView.setUint32(16, centralOffset, true);
+      push(end);
+      return new Blob(chunks, { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    }
+
+    function buildDocxBlob(photoMap, allPhotos) {
+      const files = [
+        {
+          name: '[Content_Types].xml',
+          data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`
+        },
+        {
+          name: '_rels/.rels',
+          data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`
+        },
+        {
+          name: 'word/document.xml',
+          data: buildDocumentXml(photoMap)
+        },
+        {
+          name: 'word/_rels/document.xml.rels',
+          data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${allPhotos.map((photo, index) => `<Relationship Id="${photo.rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/photo-${index + 1}.jpg"/>`).join('')}</Relationships>`
+        }
+      ];
+
+      allPhotos.forEach((photo, index) => {
+        files.push({
+          name: `word/media/photo-${index + 1}.jpg`,
+          data: base64ToBytes(dataUrlToBase64(photo.dataUrl))
+        });
+      });
+
+      return makeZip(files);
+    }
+
+    async function saveReportBlob(blob, filename) {
+      const isLocal = window.location.protocol === 'file:';
+	  const file = new File([blob], filename, {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+
+      if (!isLocal && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
+        try {
+			await navigator.share({
+				title: 'Отчет проверки СЦ',
+				text: 'Готовый отчет проверки СЦ',
+				files: [file]
+			});
+        return;
+      } catch (shareError) {
+		 console.log("Шеринг не удался, переключаемся на скачивание");
+		}
+	
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+	  
+	  document.body.appendChild(link);
+      link.click();
+
+	  setTimeout(() => {
+      link.remove();
+      URL.revokeObjectURL(url);
+      }, 500);
+	}
+    async function createReport() {
+      const createButton = document.getElementById('createReport');
+      const originalText = createButton.textContent;
+      createButton.disabled = true;
+      createButton.textContent = 'Создаю...';
+      state.checkDate = document.getElementById('checkDate').value;
+      state.city = document.getElementById('city').value.trim();
+      saveState('Сохранено');
+
+      const photoMap = {};
+      const allPhotos = [];
+      try {
+        for (const item of flatItems) {
+          const photos = await getPhotos(item.id);
+          const reportPhotos = [];
+          for (const photo of photos) {
+            const reportPhoto = await normalizeReportImage(photo.dataUrl);
+            reportPhoto.rid = `rId${allPhotos.length + 1}`;
+            reportPhotos.push(reportPhoto);
+            allPhotos.push(reportPhoto);
+          }
+          photoMap[item.id] = reportPhotos;
+        }
+
+        const filename = `Проверка СЦ_${fileSafe(state.city)}_${state.checkDate || new Date().toISOString().slice(0, 10)}.docx`;
+        const blob = buildDocxBlob(photoMap, allPhotos);
+        await saveReportBlob(blob, filename);
+      } finally {
+        createButton.disabled = false;
+        createButton.textContent = originalText;
+      }
+    }
+
+    document.getElementById('checkDate').addEventListener('input', event => {
+      state.checkDate = event.target.value;
+      saveState('Автосохранено');
+    });
+
+    document.getElementById('city').addEventListener('input', event => {
+      state.city = event.target.value;
+      saveState('Автосохранено');
+    });
+
+    document.getElementById('saveNow').addEventListener('click', () => {
+      state.checkDate = document.getElementById('checkDate').value;
+      state.city = document.getElementById('city').value;
+      saveState('Сохранено вручную');
+    });
+
+    document.getElementById('clearAll').addEventListener('click', async () => {
+      if (!confirm('Удалить все введенные данные и фотографии?')) return;
+      localStorage.removeItem(STATE_KEY);
+      await clearPhotos();
+      state = {
+        checkDate: new Date().toISOString().slice(0, 10),
+        city: '',
+        values: Object.fromEntries(flatItems.map(item => [item.id, 'Ок']))
+      };
+      render();
+      saveState('Черновик очищен');
+    });
+
+    document.getElementById('createReport').addEventListener('click', createReport);
+
+    (async function init() {
+      loadState();
+      render();
+      window.SC_MODERN_READY = true;
+      saveState('Черновик загружен');
+      try {
+        db = await openDb();
+      } catch (error) {
+        db = null;
+      }
+    })().catch(error => {
+      alert(`Не удалось запустить форму: ${error.message || error}`);
+    });
+  </script>
+</body>
+</html>
