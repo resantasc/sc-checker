@@ -1259,8 +1259,6 @@
 
       if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          title: 'Отчет проверки СЦ',
-          text: 'Готовый отчет проверки СЦ',
           files: [file]
         });
         return;
