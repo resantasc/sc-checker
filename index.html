@@ -1253,40 +1253,29 @@
     }
 
     async function saveReportBlob(blob, filename) {
-   // 1. Сначала принудительно сохраняем файл в физическую память Айфона.
-  // Это делает файл легитимным для iOS, и почта больше не сможет его заблокировать.
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+     const file = new File([blob], filename, {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
 
-  // 2. Готовим объект для системного окна отправки
-  const file = new File([blob], filename, { type: blob.type });
-  const isLocal = window.location.protocol === 'file:';
-
-  // 3. Вызываем окно «Поделиться» только если сайт открыт по HTTPS
-  if (!isLocal && navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
-    // Микропауза в 350 миллисекунд необходима, чтобы Safari успел завершить 
-    // запись файла на диск до того, как почтовое приложение попытается его прочитать.
-    setTimeout(async () => {
-      try {
+      if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
+          title: 'Отчет проверки СЦ',
+          text: 'Готовый отчет проверки СЦ',
           files: [file]
         });
-      } catch (shareError) {
-        console.log("Отправка отменена пользователем");
-      } finally {
-        URL.revokeObjectURL(url);
+        return;
       }
-    }, 350);
-  } else {
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-}
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+    }
 
     async function createReport() {
       const createButton = document.getElementById('createReport');
